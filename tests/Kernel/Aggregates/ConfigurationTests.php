@@ -30,4 +30,39 @@ class ConfigurationTests extends TestCase
         $this->assertInternalType('bool', $this->configuration->isEnabled());
         $this->assertEquals(false, $this->configuration->isEnabled());
     }
+
+    public function testBoletoEnabled()
+    {
+        $this->configuration->setBoletoEnabled(true);
+        $this->assertInternalType('bool', $this->configuration->isBoletoEnabled());
+        $this->assertEquals(true, $this->configuration->isBoletoEnabled());
+    }
+
+    public function testBoletoUnabled()
+    {
+        $this->configuration->setBoletoEnabled(false);
+        $this->assertInternalType('bool', $this->configuration->isBoletoEnabled());
+        $this->assertEquals(false, $this->configuration->isBoletoEnabled());
+    }
+
+    public function testCreditCardEnabled()
+    {
+        $this->configuration->setCreditCardEnabled(true);
+        $this->assertInternalType('bool', $this->configuration->isCreditCardEnabled());
+        $this->assertEquals(true, $this->configuration->isCreditCardEnabled());
+    }
+
+    public function testCreditCardUnabled()
+    {
+        $this->configuration->setCreditCardEnabled(false);
+        $this->assertInternalType('bool', $this->configuration->isCreditCardEnabled());
+        $this->assertEquals(false, $this->configuration->isCreditCardEnabled());
+    }
+
+    public function testAntifraudEnabled()
+    {
+        $this->configuration->setAntifraudEnabled(true);
+        $this->assertInternalType('bool', $this->configuration->isAntifraudEnabled());
+        $this->assertEquals(true, $this->configuration->isAntifraudEnabled());
+    }
 }
