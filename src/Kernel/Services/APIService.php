@@ -150,7 +150,7 @@ class APIService
         return $this->apiClient->getCustomers();
     }
 
-    private function getMundiPaggApiClient()
+    public function getMundiPaggApiClient()
     {
         $config = MPSetup::getModuleConfiguration();
 

@@ -3,11 +3,12 @@
 namespace Mundipagg\Core\Recurrence\Services;
 
 use MundiAPILib\MundiAPIClient;
+use Mundipagg\Core\Kernel\Services\APIService;
 use Mundipagg\Core\Kernel\Services\LogService;
 use Mundipagg\Core\Recurrence\Aggregates\Plan;
 use Mundipagg\Core\Recurrence\Factories\PlanFactory;
 use Mundipagg\Core\Recurrence\Repositories\PlanRepository;
-use MundiAPILib\Models\CreatePlanRequest;
+use Mundipagg\Core\Recurrence\ValueObjects\PlanId;
 
 class PlanService
 {
@@ -30,7 +31,13 @@ class PlanService
 
         $plan = $planFactory->createFromPostData($postData);
         $planRepository = new PlanRepository();
-        $this->createPlanAtMundipagg($plan);
+
+        $mundipaggPlan = $this->createPlanAtMundipagg($plan);
+
+        $id = new PlanId($mundipaggPlan->id);
+
+        $plan->setMundipaggId($id);
+
         $planRepository->save($plan);
 
         return;
@@ -38,17 +45,13 @@ class PlanService
 
     public function createPlanAtMundipagg(Plan $plan)
     {
-        $secretKey = ''; //$config->getSecretKey()->getValue();
-        $password = '';
+        $apiService = new APIService();
+        $mundipaggApi = $apiService->getMundiPaggApiClient();
         $createPlanRequest = $plan->convertToSdkRequest();
-
-        \MundiAPILib\Configuration::$basicAuthPassword = '';
-
-        $mundipaggApi = new MundiAPIClient($secretKey, $password);
         $planController = $mundipaggApi->getPlans();
         $result = $planController->createPlan($createPlanRequest);
-        return $result;
 
+        return $result;
     }
 
     public function findById($id)
@@ -56,5 +59,4 @@ class PlanService
         $productSubscriptionRepository = new PlanRepository();
         return $productSubscriptionRepository->find($id);
     }
-
 }
