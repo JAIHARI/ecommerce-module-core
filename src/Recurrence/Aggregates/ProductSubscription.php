@@ -22,9 +22,9 @@ class ProductSubscription extends AbstractEntity implements RecurrenceEntityInte
     /** @var boolean */
     private $allowInstallments = false;
     /** @var Repetition[] */
-    private $repetitions;
+    private $repetitions = [];
     /** @var @var SubProductSubscription[] */
-    private $items;
+    private $items = [];
     /** @var @var string */
     private $createdAt;
     /** @var @var string */
@@ -251,5 +251,10 @@ class ProductSubscription extends AbstractEntity implements RecurrenceEntityInte
     public function getRecurrenceType()
     {
         return self::RECURRENCE_TYPE;
+    }
+
+    public function convertToSdkRequest()
+    {
+        // TODO: Implement convertToSdkRequest() method.
     }
 }

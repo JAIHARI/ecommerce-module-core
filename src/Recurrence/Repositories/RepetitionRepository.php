@@ -53,12 +53,29 @@ class RepetitionRepository extends AbstractRepository
 
     public function delete(AbstractEntity $object)
     {
-        // TODO: Implement delete() method.
+        $table = $this->db->getTable(AbstractDatabaseDecorator::TABLE_RECURRENCE_SUB_PRODUCTS_SUBSCRIPTION_REPETITION);
+
+        $query = "DELETE FROM $table WHERE id = {$object->getId()}";
+
+        $this->db->query($query);
     }
 
     public function find($objectId)
     {
-        // TODO: Implement find() method.
+        $table = $this->db->getTable(AbstractDatabaseDecorator::TABLE_RECURRENCE_SUB_PRODUCTS_SUBSCRIPTION_REPETITION);
+
+        $query = "SELECT * FROM $table WHERE id = $objectId";
+
+        $result = $this->db->fetch($query);
+
+        if ($result->num_rows === 0) {
+            return null;
+        }
+
+        $repetitionFactory = new RepetitionFactory();
+        $repetition = $repetitionFactory->createFromDbData($result->row);
+
+        return $repetition;
     }
 
     public function findByMundipaggId(AbstractValidString $mundipaggId)
