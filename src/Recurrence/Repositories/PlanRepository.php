@@ -31,6 +31,7 @@ final class PlanRepository extends AbstractRepository
                 installments,
                 boleto,
                 billing_type,
+                trial_period_days,
                 status
             )
           VALUES 
@@ -45,6 +46,7 @@ final class PlanRepository extends AbstractRepository
                 '{$object->getAllowInstallments()}',
                 '{$object->getBoleto()}',
                 '{$object->getBillingType()}',
+                '{$object->getTrialPeriodDays()}',
                 '{$object->getStatus()}'
             )          
         ";

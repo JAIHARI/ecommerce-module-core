@@ -165,6 +165,16 @@ class PlanFactory implements FactoryInterface
         }
     }
 
+    private function setTrialPeriodDays($postData)
+    {
+        if (isset($postData['trial_period_days'])) {
+            $this->plan->setTrialPeriodDays($postData['trial_period_days']);
+            return;
+        }
+
+        $this->plan->setTrialPeriodDays(0);
+    }
+
     /**
      *
      * @param  array $postData
@@ -192,6 +202,7 @@ class PlanFactory implements FactoryInterface
         $this->setStatus($postData);
         $this->setInterval();
         $this->setItems($postData);
+        $this->setTrialPeriodDays($postData);
 
         return $this->plan;
     }
@@ -218,6 +229,12 @@ class PlanFactory implements FactoryInterface
         $boleto = $dbData['boleto'] === '1' ? '1' : '0';
         $installments = $dbData['installments'] === '1' ? '1' : '0';
 
+        $trialPeriodDays = 0;
+
+        if ($dbData['trial_period_days'] > 0) {
+            $trialPeriodDays = $dbData['trial_period_days'];
+        }
+
         $plan->setBillingType($dbData['billing_type']);
         $plan->setCreditCard($creditCard);
         $plan->setBoleto($boleto);
@@ -227,6 +244,7 @@ class PlanFactory implements FactoryInterface
         $plan->setCreatedAt(new \Datetime($dbData['created_at']));
         $plan->setStatus($dbData['status']);
         $plan->setInterval(IntervalValueObject::$intervalType($intervalCount));
+        $plan->setTrialPeriodDays($trialPeriodDays);
 
         return $plan;
     }

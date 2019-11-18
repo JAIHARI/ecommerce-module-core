@@ -326,7 +326,7 @@ final class Plan extends AbstractEntity implements RecurrenceEntityInterface
     {
         if (!is_numeric($trialPeriodDays)) {
             throw new InvalidParamException(
-                "Status should be an integer!",
+                "Trial period days should be an integer!",
                 $status
             );
         }
@@ -371,6 +371,7 @@ final class Plan extends AbstractEntity implements RecurrenceEntityInterface
         $planRequest->intervalCount = $this->getIntervalCount();
         $planRequest->interval = $this->getIntervalType();
         $planRequest->billingType = $this->getBillingType();
+        $planRequest->trialPeriodDays = $this->getTrialPeriodDays();
 
         if ($this->getCreditCard()) {
             $planRequest->paymentMethods[] = 'credit_card';
