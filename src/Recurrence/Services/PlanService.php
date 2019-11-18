@@ -9,6 +9,7 @@ use Mundipagg\Core\Recurrence\Aggregates\Plan;
 use Mundipagg\Core\Recurrence\Factories\PlanFactory;
 use Mundipagg\Core\Recurrence\Repositories\PlanRepository;
 use Mundipagg\Core\Recurrence\ValueObjects\PlanId;
+use mysql_xdevapi\Exception;
 
 class PlanService
 {
@@ -38,7 +39,14 @@ class PlanService
 
         $plan->setMundipaggId($id);
 
-        $planRepository->save($plan);
+        $dbId = $planRepository->save($plan);
+
+        $savedPlan = $planRepository->find($dbId);
+
+        $this->logService->info(
+            "Saved plan: " .
+            json_encode($savedPlan, JSON_PRETTY_PRINT)
+        );
 
         return;
     }
@@ -49,7 +57,18 @@ class PlanService
         $mundipaggApi = $apiService->getMundiPaggApiClient();
         $createPlanRequest = $plan->convertToSdkRequest();
         $planController = $mundipaggApi->getPlans();
+
+        $this->logService->info(
+            "Create plan request: " .
+            json_encode($createPlanRequest, JSON_PRETTY_PRINT)
+        );
+
         $result = $planController->createPlan($createPlanRequest);
+
+        $this->logService->info(
+            "Create plan response: " .
+            json_encode($result, JSON_PRETTY_PRINT)
+        );
 
         return $result;
     }

@@ -50,9 +50,13 @@ final class PlanRepository extends AbstractRepository
         ";
 
         $this->db->query($query);
-        $object->setId($this->db->getLastId());
+        $dbId = $this->db->getLastId();
+
+        $object->setId($dbId);
 
         $this->saveSubProducts($object);
+
+        return $dbId;
     }
 
     protected function update(AbstractEntity &$object)
@@ -61,12 +65,12 @@ final class PlanRepository extends AbstractRepository
     }
 
     /** @param Plan $object */
-    public function find($objectId)
+    public function find($dbId)
     {
         $table = $this->db->getTable(
             AbstractDatabaseDecorator::TABLE_RECURRENCE_PRODUCTS_PLAN
         );
-        $query = "SELECT * FROM $table WHERE id = '$id' LIMIT 1";
+        $query = "SELECT * FROM $table WHERE id = '$dbId' LIMIT 1";
 
         $result = $this->db->fetch($query);
 

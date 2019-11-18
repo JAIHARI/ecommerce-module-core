@@ -217,16 +217,23 @@ class PlanFactory implements FactoryInterface
             new PlanId($dbData['plan_id'])
         );
 
-        $plan->setBillingType($postData['billing_type']);
-        $plan->setCreditCard($postData['credit_card']);
-        $plan->setBoleto($postData['boleto']);
-        $plan->setAllowInstallments($postData['allow_installments']);
-        $plan->setProductId($postData['product_id']);
-        $plan->setUpdatedAt(new \Datetime($postData['updated_at']));
-        $plan->setCreatedAt(new \Datetime($postData['created_at']));
-        $plan->setStatus($postData['status']);
+        $intervalType = $dbData['interval_type'];
+        $intervalCount = $dbData['interval_count'];
+
+        $creditCard = $dbData['credit_card'] === '1' ? '1' : '0';
+        $boleto = $dbData['boleto'] === '1' ? '1' : '0';
+        $installments = $dbData['installments'] === '1' ? '1' : '0';
+
+        $plan->setBillingType($dbData['billing_type']);
+        $plan->setCreditCard($creditCard);
+        $plan->setBoleto($boleto);
+        $plan->setAllowInstallments($installments);
+        $plan->setProductId($dbData['product_id']);
+        $plan->setUpdatedAt(new \Datetime($dbData['updated_at']));
+        $plan->setCreatedAt(new \Datetime($dbData['created_at']));
+        $plan->setStatus($dbData['status']);
         $plan->setInterval(IntervalValueObject::$intervalType($intervalCount));
 
-        return $savedCard;
+        return $plan;
     }
 }
