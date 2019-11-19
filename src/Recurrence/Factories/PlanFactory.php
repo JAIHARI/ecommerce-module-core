@@ -234,7 +234,8 @@ class PlanFactory implements FactoryInterface
         if ($dbData['trial_period_days'] > 0) {
             $trialPeriodDays = $dbData['trial_period_days'];
         }
-
+        $plan->setName($dbData['name']);
+        $plan->setDescription($dbData['description']);
         $plan->setBillingType($dbData['billing_type']);
         $plan->setCreditCard($creditCard);
         $plan->setBoleto($boleto);

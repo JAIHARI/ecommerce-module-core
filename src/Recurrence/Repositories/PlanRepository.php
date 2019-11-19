@@ -8,8 +8,9 @@ use Mundipagg\Core\Kernel\Abstractions\AbstractRepository;
 use Mundipagg\Core\Kernel\ValueObjects\AbstractValidString;
 use Mundipagg\Core\Recurrence\Aggregates\Plan;
 use Mundipagg\Core\Recurrence\Factories\PlanFactory;
+use Mundipagg\Core\Recurrence\Factories\ProductSubscriptionFactory;
 
-final class PlanRepository extends AbstractRepository
+class PlanRepository extends AbstractRepository
 {
     /** @param Plan $object */
     protected function create(AbstractEntity &$object)
@@ -73,6 +74,34 @@ final class PlanRepository extends AbstractRepository
             AbstractDatabaseDecorator::TABLE_RECURRENCE_PRODUCTS_PLAN
         );
         $query = "SELECT * FROM $table WHERE id = '$dbId' LIMIT 1";
+
+        $result = $this->db->fetch($query);
+
+        if ($result->num_rows > 0) {
+
+            $planFactory = new PlanFactory();
+            $subProductsRepository = new SubProductRepository();
+            $plan = $planFactory->createFromDbData($result->row);
+
+            $items = $subProductsRepository->findByRecurrence($plan);
+            $plan->setItems($items);
+
+            return $plan;
+        }
+        return null;
+    }
+
+    /**
+     * @param $productId Magento's product id
+     * @return PlanFactory|null
+     * @throws \Exception
+     */
+    public function findByProductId($productId)
+    {
+        $table = $this->db->getTable(
+            AbstractDatabaseDecorator::TABLE_RECURRENCE_PRODUCTS_PLAN
+        );
+        $query = "SELECT * FROM $table WHERE `product_id` = '$productId' LIMIT 1";
 
         $result = $this->db->fetch($query);
 

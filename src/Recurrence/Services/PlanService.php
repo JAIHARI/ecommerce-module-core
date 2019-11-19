@@ -9,7 +9,8 @@ use Mundipagg\Core\Recurrence\Aggregates\Plan;
 use Mundipagg\Core\Recurrence\Factories\PlanFactory;
 use Mundipagg\Core\Recurrence\Repositories\PlanRepository;
 use Mundipagg\Core\Recurrence\ValueObjects\PlanId;
-use mysql_xdevapi\Exception;
+use MundiPagg\MundiPagg\Concrete\Magento2CoreSetup;
+use MundiPagg\MundiPagg\Model\Api\ProductsPlan;
 
 class PlanService
 {
@@ -18,6 +19,7 @@ class PlanService
 
     public function __construct()
     {
+        Magento2CoreSetup::bootstrap();
         $this->logService = new LogService(
             'PlanService',
             true
@@ -75,7 +77,8 @@ class PlanService
 
     public function findById($id)
     {
-        $productSubscriptionRepository = new PlanRepository();
-        return $productSubscriptionRepository->find($id);
+        $planRepository = new PlanRepository();
+        $plan = $planRepository->find($id);
+        return $plan;
     }
 }
