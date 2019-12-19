@@ -44,6 +44,9 @@ commands:
     - run:
         name: Java Check
         command: java -version
+     - run:
+        name: check list
+        command: ls
 
 jobs:
   build-php56:
