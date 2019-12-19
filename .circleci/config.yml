@@ -9,7 +9,7 @@ commands:
           command: apt update
       - run:
           name: install java
-          command: apt install default-jdk
+          command: apt install default-jdk -y
       - run:
           name: install php
           command: apt install php-fpm
