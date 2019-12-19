@@ -37,6 +37,14 @@ commands:
           root: /
           paths:
             - app
+  
+  buildjava:
+    steps:
+    - checkout
+    - run:
+        name: Java Check
+        command: java --version
+
 jobs:
   build-php56:
     working_directory: /app
@@ -63,7 +71,7 @@ jobs:
         environment:
           APP_ENV: test
     steps:
-      - build
+      - buildjava
 
 workflows:
   build_publish_deploy:
