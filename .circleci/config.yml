@@ -6,7 +6,12 @@ commands:
       - checkout
       - run:
           name: Java
-          command: java --version
+          command: |
+              echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && \
+              add-apt-repository -y ppa:webupd8team/java && \
+              apt-get update && \
+              apt-get install -y oracle-java8-installer --allow-unauthenticated && \
+              rm -rf /var/lib/apt/lists/* && \
       - run:
           name: Install system packages
           command: apt-get update && apt-get -y install zip git zlib1g-dev wget
@@ -85,3 +90,4 @@ workflows:
     jobs:
       - build-php56
       - build-php72
+
