@@ -16,7 +16,6 @@ commands:
           name: Display PHP information
           command: |
             php -v
-            java --version
       - run:
           name: Check PHP sintax
           command: find . -name \*.php -exec php -l "{}" \;
@@ -49,16 +48,14 @@ commands:
             pecl install xdebug
             docker-php-ext-enable xdebug
             php vendor/bin/phpunit --coverage-clover build/coverage/xml   
-            curl -L https://github.com/codacy/codacy-coverage-reporter/releases/download/4.0.5/codacy-coverage-reporter-4.0.5-assembly.jar > ./codacy-test-reporter.jar
-            chmod +x ./codacy-test-reporter.jar
-            java -jar ./codacy-test-reporter.jar report --language PHP -t ${CODACY_PROJECT_TOKEN} -r build/coverage/xml
-
   java_test:
     steps:
       - run:
           name: Java coverage
           command: | 
             java --version
+            curl -L https://github.com/codacy/codacy-coverage-reporter/releases/download/4.0.5/codacy-coverage-reporter-4.0.5-assembly.jar > ./codacy-test-reporter.jar
+            chmod +x ./codacy-test-reporter.jar
             java -jar ./codacy-test-reporter.jar report --language PHP -t ${CODACY_PROJECT_TOKEN} -r build/coverage/xml  
           
             
