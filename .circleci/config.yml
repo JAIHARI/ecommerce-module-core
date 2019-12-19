@@ -5,8 +5,14 @@ commands:
     steps:
       - checkout
       - run:
-          name: Java Check
-          command: java -version  
+          name: update
+          command: apt update
+      - run:
+          name: install java
+          command: install default-jre
+      - run:
+          name: install php
+          command: install php-fpm
       - run:
           name: Install system packages
           command: apt-get update && apt-get -y install zip git zlib1g-dev wget
@@ -70,8 +76,7 @@ jobs:
   build-php72:
     working_directory: /app
     docker:
-      - image: php:7.2-apache
-      - image: openjdk:8-alpine  
+      - image: ubuntu      
         environment:
           APP_ENV: test
     steps:
