@@ -12,7 +12,7 @@ commands:
           command: apt install default-jdk -y
       - run:
           name: install php
-          command: apt install php-fpm
+          command: apt install php-fpm -y
       - run:
           name: Install system packages
           command: apt-get update && apt-get -y install zip git zlib1g-dev wget
