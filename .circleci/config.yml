@@ -48,19 +48,10 @@ commands:
             pecl install xdebug
             docker-php-ext-enable xdebug
             php vendor/bin/phpunit --coverage-clover build/coverage/xml   
-  java_test:
-    steps:
-      - run:
-          name: Java coverage
-          command: | 
-            java --version
-            curl -L https://github.com/codacy/codacy-coverage-reporter/releases/download/4.0.5/codacy-coverage-reporter-4.0.5-assembly.jar > ./codacy-test-reporter.jar
-            chmod +x ./codacy-test-reporter.jar
-            java -jar ./codacy-test-reporter.jar report --language PHP -t ${CODACY_PROJECT_TOKEN} -r build/coverage/xml  
-          
-            
-      - store_artifacts:
-          path:  build/coverage-report   
+  test:
+     docker:
+       - image: circleci/node:4.8.2-jessie
+       - image: mongo:3.4.4-jessie                          
   test:
     working_directory: /app
     docker:
@@ -94,6 +85,6 @@ workflows:
       - build-php56
       - build-php72
       - test:
-         requires:
-           - build-php72  
+          requires:
+            - build-php72
 
