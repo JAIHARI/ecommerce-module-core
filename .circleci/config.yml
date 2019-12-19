@@ -6,7 +6,7 @@ commands:
       - checkout
       - run:
           name: update
-          command: apt update
+          command: apt update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends && tzdata && rm -rf /var/lib/apt/lists/*
       - run:
           name: install java
           command: apt install default-jdk -y
