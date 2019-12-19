@@ -10,7 +10,7 @@ commands:
       - run:
           name: Install PHP extensions
           command: | 
-            apt install default-jdk -y         
+            apt install oracle-java8-set-default -y         
             docker-php-ext-install pdo
             docker-php-ext-install zip
       - run:
