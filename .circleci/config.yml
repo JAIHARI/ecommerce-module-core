@@ -5,14 +5,6 @@ commands:
     steps:
       - checkout
       - run:
-          name: Java
-          command: |
-              echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && \
-              add-apt-repository -y ppa:webupd8team/java && \
-              apt-get update && \
-              apt-get install -y oracle-java8-installer --allow-unauthenticated && \
-              rm -rf /var/lib/apt/lists
-      - run:
           name: Install system packages
           command: apt-get update && apt-get -y install zip git zlib1g-dev wget
       - run:
@@ -60,10 +52,24 @@ commands:
             curl -L https://github.com/codacy/codacy-coverage-reporter/releases/download/4.0.5/codacy-coverage-reporter-4.0.5-assembly.jar > ./codacy-test-reporter.jar
             chmod +x ./codacy-test-reporter.jar
             java -jar ./codacy-test-reporter.jar report --language PHP -t ${CODACY_PROJECT_TOKEN} -r build/coverage/xml
+
+  java_test:
+    steps:
+      - run:
+          name: Java coverage
+          command: | 
+            java --version
+            java -jar ./codacy-test-reporter.jar report --language PHP -t ${CODACY_PROJECT_TOKEN} -r build/coverage/xml  
           
             
       - store_artifacts:
-          path:  build/coverage-report       
+          path:  build/coverage-report   
+  test:
+    working_directory: /app
+    docker:
+      - image: openjdk:8 
+    steps:  
+      - java_test  
 jobs:
   build-php56:
     working_directory: /app
@@ -90,4 +96,7 @@ workflows:
     jobs:
       - build-php56
       - build-php72
+      - test:
+         requires:
+           - build-php72  
 
