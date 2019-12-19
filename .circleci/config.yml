@@ -12,6 +12,9 @@ commands:
           command: |
             docker-php-ext-install pdo
             docker-php-ext-install zip
+            apt-get install libcurl4-gnutls-dev
+            docker-php-ext-install curl
+            pecl install xdebug
       - run:
           name: Display PHP information
           command: |
