@@ -11,7 +11,7 @@ commands:
           name: Install PHP extensions
           command: | 
             sudo add-apt-repository ppa:webupd8team/java
-            sudo apt update
+            apt update
             apt install default-jdk -y         
             docker-php-ext-install pdo
             docker-php-ext-install zip
