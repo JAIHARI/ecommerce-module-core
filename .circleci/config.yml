@@ -43,7 +43,7 @@ commands:
     - checkout
     - run:
         name: Java Check
-        command: java --version
+        command: java -version
 
 jobs:
   build-php56:
