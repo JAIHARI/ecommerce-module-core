@@ -9,22 +9,19 @@ commands:
           command: apt update
       - run:
           name: install java
-          command: install default-jre
+          command: apt install default-jdk
       - run:
           name: install php
-          command: install php-fpm
+          command: apt install php-fpm
       - run:
           name: Install system packages
           command: apt-get update && apt-get -y install zip git zlib1g-dev wget
       - run:
           name: Install PHP extensions
           command: |
-            docker-php-ext-install pdo
-            docker-php-ext-install zip
-            apt-get install libcurl4-gnutls-dev
-            docker-php-ext-install curl
-            pecl install xdebug
-            docker-php-ext-enable xdebug
+            apt-get install pdo-mysql          
+            apt-get install libcurl4-gnutls-dev          
+            pecl install xdebug            
       - run:
           name: Display PHP information
           command: |
