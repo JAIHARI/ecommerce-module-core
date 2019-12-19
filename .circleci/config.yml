@@ -55,12 +55,15 @@ jobs:
           APP_ENV: test
     steps:
       - build
+
   build-java:
     working_directory: /app
     docker:
       - image: openjdk:7
         environment:
           APP_ENV: test
+    steps:
+      - build
 
 workflows:
   build_publish_deploy:
