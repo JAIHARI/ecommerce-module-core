@@ -9,7 +9,7 @@ commands:
           command: apt-get update && apt-get -y install zip git zlib1g-dev wget
       - run:
           name: Install PHP extensions
-          command: |               
+          command: |
             docker-php-ext-install pdo
             docker-php-ext-install zip
       - run:
@@ -37,27 +37,6 @@ commands:
           root: /
           paths:
             - app
-  build_test:
-    steps:
-      - run:
-          name: Code coverage
-          command: | 
-            mkdir -p build/logs            
-            apt-get install libcurl4-gnutls-dev
-            docker-php-ext-install curl
-            pecl install xdebug
-            docker-php-ext-enable xdebug
-            php vendor/bin/phpunit --coverage-clover build/coverage/xml   
-  test:
-     docker:
-       - image: circleci/node:4.8.2-jessie
-       - image: mongo:3.4.4-jessie                          
-  test:
-    working_directory: /app
-    docker:
-      - image: openjdk:8 
-    steps:  
-      - java_test  
 jobs:
   build-php56:
     working_directory: /app
@@ -72,12 +51,15 @@ jobs:
     working_directory: /app
     docker:
       - image: php:7.2-apache
-      - image: openjdk:8  
         environment:
-          APP_ENV: test      
+          APP_ENV: test
     steps:
       - build
-      - build_test
+
+  test:
+     docker:
+      - image: circleci/node:4.8.2-jessie
+      - image: mongo:3.4.4-jessie
 
 workflows:
   build_publish_deploy:
@@ -86,5 +68,4 @@ workflows:
       - build-php72
       - test:
           requires:
-            - build-php72
-
+            - build-php72    
