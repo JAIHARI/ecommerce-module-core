@@ -67,7 +67,7 @@ jobs:
   build-java:
     working_directory: /app
     docker:
-      - image: openjdk:7
+      - image: openjdk:8-alpine
         environment:
           APP_ENV: test
     steps:
