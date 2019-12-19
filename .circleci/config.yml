@@ -56,7 +56,7 @@ jobs:
     steps:
       - build
 
-  testw:
+  build_novo:
      working_directory: /app
      docker:
       - image: circleci/node:4.8.2-jessie
@@ -67,6 +67,6 @@ workflows:
     jobs:
       - build-php56
       - build-php72
-      - testw:
+      - build_novo:
           requires:
             - build-php72    
