@@ -36,6 +36,8 @@ commands:
           command: |
             docker-php-ext-install pdo
             docker-php-ext-install zip
+            pecl install xdebug
+            docker-php-ext-enable xdebug
       - run:
           name: Display PHP information
           command: |
@@ -57,6 +59,10 @@ commands:
       - run:
           name: Run PHPUnit
           command: vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+      - run:
+          name: Run Codacy
+          command: java -jar ./codacy-test-reporter.jar report -l PHP -t ${CODACY_PROJECT_TOKEN} -r build/logs/clover.xml 
+
       - persist_to_workspace:
           root: /
           paths:
