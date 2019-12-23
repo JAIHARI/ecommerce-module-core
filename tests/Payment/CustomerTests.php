@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Mundipagg\Core\Test\Payment;
 
 use Mundipagg\Core\Kernel\ValueObjects\Id\CustomerId;
@@ -28,7 +27,6 @@ class CustomerTests extends TestCase
         $this->customer->setEmail("teste@teste.com");
         $this->customer->setDocument("76852559017");
         $this->customer->setType(CustomerType::individual());
-
 
         $this->assertEquals(2, $this->customer->getCode());
     }
