@@ -62,7 +62,7 @@ commands:
       - run:
           name: Send to Codacy
           command: |
-             composer install codacy/coverage
+             php composer.phar install codacy/coverage
              php vendor/bin/codacycoverage clover /app/build/logs/clover.xml
       - store_artifacts:
           path: /app/build/logs/clover.xml 
