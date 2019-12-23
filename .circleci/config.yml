@@ -62,7 +62,9 @@ commands:
       - run:
           name: Send to Codacy
           command: java -jar ./codacy-test-reporter.jar report -l PHP -t ${CODACY_PROJECT_TOKEN} -r build/logs/clover.xml 
-
+      - store_artifacts:
+          path: /app/build/logs/clover.xml 
+          destination: test-result
       - persist_to_workspace:
           root: /
           paths:
