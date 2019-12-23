@@ -17,6 +17,9 @@ class AddressTests extends TestCase
         $this->andress = new Address();
     }
 
+    /**
+     * @throws \Exception
+     */
     public function testAddressNumberRemoveComma()
     {
         $this->andress->setNumber('12,3,4,5,6');

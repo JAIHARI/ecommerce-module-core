@@ -2,6 +2,7 @@
 
 namespace Mundipagg\Core\Test\Recurrence\Aggregates;
 
+use Mundipagg\Core\Kernel\Exceptions\InvalidParamException;
 use Mundipagg\Core\Kernel\ValueObjects\Id\CycleId;
 use Mundipagg\Core\Recurrence\Aggregates\Cycle;
 use PHPUnit\Framework\TestCase;
@@ -18,6 +19,9 @@ class CycleTests extends TestCase
         $this->cycle = new Cycle();
     }
 
+    /**
+     * @throws InvalidParamException
+     */
     public function testCycleObject()
     {
         $this->cycle->setMundipaggId(new CycleId('cycle_45asDadb8Xd95451'));

@@ -13,7 +13,8 @@ class InstallmentTest extends TestCase
      *
      * @covers \Mundipagg\Core\Kernel\ValueObjects\Installment
      *
-     * @uses \Mundipagg\Core\Kernel\Abstractions\AbstractValueObject
+     * @throws InvalidParamException
+     * @uses   \Mundipagg\Core\Kernel\Abstractions\AbstractValueObject
      *
      */
     public function aInstallmentShouldBeComparable()

@@ -46,6 +46,7 @@ class CardBrandTest extends TestCase
      * @test
      *
      * @covers \Mundipagg\Core\Kernel\ValueObjects\CardBrand
+     * @throws \ReflectionException
      */
     public function allCardBrandConstantsDefinedInTheClassShouldBeInstantiable()
     {
