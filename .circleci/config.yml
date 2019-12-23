@@ -66,7 +66,7 @@ commands:
           command: |
              php vendor/bin/codacycoverage clover /app/build/logs/clover.xml
       - store_artifacts:
-          path: /app/build/logs/clover.xml  
+          path: /app/build/logs/clover.xml
           destination: test-result
       - persist_to_workspace:
           root: /
