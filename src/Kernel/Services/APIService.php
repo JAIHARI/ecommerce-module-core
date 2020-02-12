@@ -258,6 +258,12 @@ class APIService
         }
     }
 
+    /**
+     * @param SubscriptionId $subscriptionId
+     * @return \Mundipagg\Core\Kernel\Abstractions\AbstractEntity|Subscription
+     * @throws \Mundipagg\Core\Kernel\Exceptions\InvalidParamException
+     * @throws \Exception
+     */
     public function getSubscription(SubscriptionId $subscriptionId)
     {
         try {
@@ -274,7 +280,7 @@ class APIService
             $subscriptionFactory = new SubscriptionFactory();
             return $subscriptionFactory->createFromPostData($subscriptionData);
         } catch (APIException $e) {
-            return $e->getMessage();
+            throw new \Exception($e);
         }
     }
 

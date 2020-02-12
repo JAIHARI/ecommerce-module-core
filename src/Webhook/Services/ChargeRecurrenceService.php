@@ -20,7 +20,7 @@ use Mundipagg\Core\Recurrence\Repositories\ChargeRepository;
 use Mundipagg\Core\Recurrence\Repositories\SubscriptionRepository;
 use Mundipagg\Core\Webhook\Aggregates\Webhook;
 
-final class ChargeRecurrenceService extends AbstractHandlerService
+class ChargeRecurrenceService extends AbstractHandlerService
 {
     /**
      * @var LocalizationService
@@ -48,6 +48,11 @@ final class ChargeRecurrenceService extends AbstractHandlerService
     private $orderService;
 
     /**
+     * @var SubscriptionRepository
+     */
+    private $subscriptionRepository;
+
+    /**
      * ChargeRecurrenceService constructor.
      */
     public function __construct()
@@ -57,6 +62,7 @@ final class ChargeRecurrenceService extends AbstractHandlerService
         $this->orderFactory = new OrderFactory();
         $this->chargeRepository = new ChargeRepository();
         $this->orderService = new OrderService();
+        $this->subscriptionRepository = new SubscriptionRepository();
     }
 
     /**
@@ -66,10 +72,6 @@ final class ChargeRecurrenceService extends AbstractHandlerService
      */
     public function handlePaid(Webhook $webhook)
     {
-        $orderFactory = new OrderFactory();
-        $chargeRepository = new ChargeRepository();
-        $orderService = new OrderService();
-
         /**
          * @var Charge $charge
          */
@@ -80,7 +82,7 @@ final class ChargeRecurrenceService extends AbstractHandlerService
         /**
          * @var Charge $outdatedCharge
          */
-        $outdatedCharge = $chargeRepository->findByMundipaggId($charge->getMundipaggId());
+        $outdatedCharge = $this->chargeRepository->findByMundipaggId($charge->getMundipaggId());
         if ($outdatedCharge !== null) {
             $outdatedCharge->addTransaction($charge->getLastTransaction());
             $charge = $outdatedCharge;
@@ -97,21 +99,21 @@ final class ChargeRecurrenceService extends AbstractHandlerService
             $charge->setPaidAmount($paidAmount);
         }
 
-        $chargeRepository->save($charge);
+        $this->chargeRepository->save($charge);
 
         $this->order->setCurrentCharge($charge);
 
         $history = $this->prepareHistoryComment($charge);
-        $platformOrder->addHistoryComment($history);
+        $platformOrder->addHistoryComment($history, false);
 
         $platformOrderStatus = ucfirst(ChargeStatus::paid()->getStatus());
-        $realOrder = $orderFactory->createFromSubscriptionData(
+        $realOrder = $this->orderFactory->createFromSubscriptionData(
             $this->order,
             $platformOrderStatus
         );
         $realOrder->addCharge($charge);
 
-        $orderService->syncPlatformWith($realOrder);
+        $this->orderService->syncPlatformWith($realOrder);
 
         $platformOrder->save();
 
@@ -131,14 +133,9 @@ final class ChargeRecurrenceService extends AbstractHandlerService
      */
     protected function handlePartialCanceled(Webhook $webhook)
     {
-        $orderFactory = new OrderFactory();
-        $chargeRepository = new ChargeRepository();
-        $orderService = new OrderService();
-
         $order = $this->order;
 
         /**
-         *
          * @var Charge $charge
          */
         $charge = $webhook->getEntity();
@@ -148,7 +145,7 @@ final class ChargeRecurrenceService extends AbstractHandlerService
          *
          * @var Charge $outdatedCharge
          */
-        $outdatedCharge = $chargeRepository->findByMundipaggId(
+        $outdatedCharge = $this->chargeRepository->findByMundipaggId(
             $charge->getMundipaggId()
         );
 
@@ -163,21 +160,21 @@ final class ChargeRecurrenceService extends AbstractHandlerService
         }
 
         $charge->cancel($cancelAmount);
-        $chargeRepository->save($charge);
+        $this->chargeRepository->save($charge);
 
         $this->order->setCurrentCharge($charge);
 
         $history = $this->prepareHistoryComment($charge);
-        $order->getPlatformOrder()->addHistoryComment($history);
+        $order->getPlatformOrder()->addHistoryComment($history, false);
 
         $platformOrderStatus = ucfirst($order->getPlatformOrder()->getPlatformOrder()->getStatus());
-        $realOrder = $orderFactory->createFromSubscriptionData(
+        $realOrder = $this->orderFactory->createFromSubscriptionData(
             $order,
             $platformOrderStatus
         );
         $realOrder->addCharge($charge);
 
-        $orderService->syncPlatformWith($realOrder);
+        $this->orderService->syncPlatformWith($realOrder);
 
         $returnMessage = $this->prepareReturnMessage($charge);
         $result = [
@@ -188,28 +185,40 @@ final class ChargeRecurrenceService extends AbstractHandlerService
         return $result;
     }
 
+    /**
+     * @param Webhook $webhook
+     * @return array
+     * @throws InvalidParamException
+     */
     protected function handleOverpaid(Webhook $webhook)
     {
         return $this->handlePaid($webhook);
     }
 
+    /**
+     * @param Webhook $webhook
+     * @return array
+     * @throws InvalidParamException
+     */
     protected function handleUnderpaid(Webhook $webhook)
     {
         return $this->handlePaid($webhook);
     }
 
+    /**
+     * @param Webhook $webhook
+     * @return array
+     * @throws InvalidParamException
+     */
     protected function handleRefunded(Webhook $webhook)
     {
-        $orderFactory = new OrderFactory();
-        $chargeRepository = new ChargeRepository();
-        $orderService = new OrderService();
-
         $order = $this->order;
         if ($order->getStatus()->equals(OrderStatus::canceled())) {
             $result = [
                 "message" => "It is not possible to refund a charge of an order that was canceled.",
                 "code" => 200
             ];
+
             return $result;
         }
 
@@ -223,7 +232,7 @@ final class ChargeRecurrenceService extends AbstractHandlerService
         /**
          * @var Charge $outdatedCharge
          */
-        $outdatedCharge = $chargeRepository->findByMundipaggId(
+        $outdatedCharge = $this->chargeRepository->findByMundipaggId(
             $charge->getMundipaggId()
         );
 
@@ -238,21 +247,21 @@ final class ChargeRecurrenceService extends AbstractHandlerService
         }
 
         $charge->cancel($cancelAmount);
-        $chargeRepository->save($charge);
+        $this->chargeRepository->save($charge);
 
         $this->order->setCurrentCharge($charge);
 
         $history = $this->prepareHistoryComment($charge);
-        $order->getPlatformOrder()->addHistoryComment($history);
+        $order->getPlatformOrder()->addHistoryComment($history, false);
 
         $platformOrderStatus = ucfirst($order->getPlatformOrder()->getPlatformOrder()->getStatus());
-        $realOrder = $orderFactory->createFromSubscriptionData(
+        $realOrder = $this->orderFactory->createFromSubscriptionData(
             $order,
             $platformOrderStatus
         );
         $realOrder->addCharge($charge);
 
-        $orderService->syncPlatformWith($realOrder);
+        $this->orderService->syncPlatformWith($realOrder);
 
         $returnMessage = $this->prepareReturnMessage($charge);
         $result = [
@@ -415,14 +424,21 @@ final class ChargeRecurrenceService extends AbstractHandlerService
     }
 
     /**
+     * @return APIService
+     */
+    public function getApiService()
+    {
+        return new ApiService();
+    }
+
+    /**
      * @param Webhook $webhook
      * @throws InvalidParamException
      * @throws Exception
      */
     public function loadOrder(Webhook $webhook)
     {
-        $subscriptionRepository = new SubscriptionRepository();
-        $apiService = new ApiService();
+        $apiService = $this->getApiService();
 
         /** @var Charge $charge */
         $charge = $webhook->getEntity();
@@ -438,7 +454,8 @@ final class ChargeRecurrenceService extends AbstractHandlerService
         $charge->setCycleEnd($subscription->getCurrentCycle()->getCycleEnd());
 
         $orderCode = $subscription->getPlatformOrder()->getCode();
-        $order = $subscriptionRepository->findByCode($orderCode);
+
+        $order = $this->subscriptionRepository->findByCode($orderCode);
         if ($order === null) {
             throw new NotFoundException("Order #{$orderCode} not found.");
         }
@@ -453,7 +470,6 @@ final class ChargeRecurrenceService extends AbstractHandlerService
      */
     public function prepareHistoryComment(ChargeInterface $charge)
     {
-        $i18n = new LocalizationService();
         $moneyService = new MoneyService();
 
         if (
@@ -463,21 +479,21 @@ final class ChargeRecurrenceService extends AbstractHandlerService
         ) {
             $amountInCurrency = $moneyService->centsToFloat($charge->getPaidAmount());
 
-            $history = $i18n->getDashboard(
+            $history = $this->i18n->getDashboard(
                 'Payment received: %.2f',
                 $amountInCurrency
             );
 
             $extraValue = $charge->getPaidAmount() - $charge->getAmount();
             if ($extraValue > 0) {
-                $history .= ". " . $i18n->getDashboard(
+                $history .= ". " . $this->i18n->getDashboard(
                     "Extra amount paid: %.2f",
                     $moneyService->centsToFloat($extraValue)
                     );
             }
 
             if ($extraValue < 0) {
-                $history .= ". " . $i18n->getDashboard(
+                $history .= ". " . $this->i18n->getDashboard(
                     "Remaining amount: %.2f",
                     $moneyService->centsToFloat(abs($extraValue))
                     );
@@ -485,20 +501,20 @@ final class ChargeRecurrenceService extends AbstractHandlerService
 
             $refundedAmount = $charge->getRefundedAmount();
             if ($refundedAmount > 0) {
-                $history = $i18n->getDashboard(
+                $history = $this->i18n->getDashboard(
                     'Refunded amount: %.2f',
                     $moneyService->centsToFloat($refundedAmount)
                 );
-                $history .= " (" . $i18n->getDashboard('until now') . ")";
+                $history .= " (" . $this->i18n->getDashboard('until now') . ")";
             }
 
             $canceledAmount = $charge->getCanceledAmount();
             if ($canceledAmount > 0) {
                 $amountCanceledInCurrency = $moneyService->centsToFloat($canceledAmount);
 
-                $history .= " ({$i18n->getDashboard('Partial Payment')}";
+                $history .= " ({$this->i18n->getDashboard('Partial Payment')}";
                 $history .= ". " .
-                    $i18n->getDashboard(
+                    $this->i18n->getDashboard(
                         'Canceled amount: %.2f',
                         $amountCanceledInCurrency
                     ) . ')';
@@ -508,16 +524,16 @@ final class ChargeRecurrenceService extends AbstractHandlerService
         }
 
         $amountInCurrency = $moneyService->centsToFloat($charge->getRefundedAmount());
-        $history = $i18n->getDashboard(
+        $history = $this->i18n->getDashboard(
             'Charge canceled.'
         );
 
-        $history .= ' ' . $i18n->getDashboard(
+        $history .= ' ' . $this->i18n->getDashboard(
             'Refunded amount: %.2f',
             $amountInCurrency
             );
 
-        $history .= " (" . $i18n->getDashboard('until now') . ")";
+        $history .= " (" . $this->i18n->getDashboard('until now') . ")";
 
         return $history;
     }
@@ -529,46 +545,43 @@ final class ChargeRecurrenceService extends AbstractHandlerService
      */
     public function prepareReturnMessage(ChargeInterface $charge)
     {
-        $moneyService = new MoneyService();
-
         if (
             $charge->getStatus()->equals(ChargeStatus::paid())
             || $charge->getStatus()->equals(ChargeStatus::overpaid())
             || $charge->getStatus()->equals(ChargeStatus::underpaid())
         ) {
-            $amountInCurrency = $moneyService->centsToFloat($charge->getPaidAmount());
+            $amountInCurrency = $this->moneyService->centsToFloat($charge->getPaidAmount());
 
             $returnMessage = "Amount Paid: $amountInCurrency";
 
             $extraValue = $charge->getPaidAmount() - $charge->getAmount();
             if ($extraValue > 0) {
                 $returnMessage .= ". Extra value paid: " .
-                    $moneyService->centsToFloat($extraValue);
+                    $this->moneyService->centsToFloat($extraValue);
             }
 
             if ($extraValue < 0) {
                 $returnMessage .= ". Remaining Amount: " .
-                    $moneyService->centsToFloat(abs($extraValue));
+                    $this->moneyService->centsToFloat(abs($extraValue));
             }
 
             $canceledAmount = $charge->getCanceledAmount();
             if ($canceledAmount > 0) {
-                $amountCanceledInCurrency = $moneyService->centsToFloat($canceledAmount);
+                $amountCanceledInCurrency = $this->moneyService->centsToFloat($canceledAmount);
 
                 $returnMessage .= ". Amount Canceled: $amountCanceledInCurrency";
             }
 
-
             $refundedAmount = $charge->getRefundedAmount();
             if ($refundedAmount > 0) {
                 $returnMessage = "Refunded amount unil now: " .
-                    $moneyService->centsToFloat($refundedAmount);
+                    $this->moneyService->centsToFloat($refundedAmount);
             }
 
             return $returnMessage;
         }
 
-        $amountInCurrency = $moneyService->centsToFloat($charge->getRefundedAmount());
+        $amountInCurrency = $this->moneyService->centsToFloat($charge->getRefundedAmount());
         $returnMessage = "Charge canceled. Refunded amount: $amountInCurrency";
 
         return $returnMessage;
